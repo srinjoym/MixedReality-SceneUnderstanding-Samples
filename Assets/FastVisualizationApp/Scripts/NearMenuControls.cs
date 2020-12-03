@@ -29,7 +29,7 @@ public class NearMenuControls : MonoBehaviour
         sceneUnderstandingManager.AutoRefresh = enabled;
         if (!sceneUnderstandingManager.AutoRefresh)
         {
-            sceneUnderstandingManager.TimeElapsedSinceLastAutoRefresh = sceneUnderstandingManager.AutoRefreshIntervalInSeconds;
+            // sceneUnderstandingManager.TimeElapsedSinceLastAutoRefresh = sceneUnderstandingManager.AutoRefreshIntervalInSeconds;
         }
     }
 

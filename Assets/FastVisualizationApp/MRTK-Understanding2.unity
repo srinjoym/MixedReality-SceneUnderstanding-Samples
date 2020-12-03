@@ -696,14 +696,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   QuerySceneFromDevice: 1
-  SUSerializedScenePaths: []
+  SUSerializedScenePaths:
+  - {fileID: 4900000, guid: 82ce9e90cb0010645b80557a1d4a4263, type: 3}
   SceneRoot: {fileID: 1142266363}
   BoundingSphereRadiusInMeters: 10
   AutoRefresh: 1
   AutoRefreshIntervalInSeconds: 1
   SceneObjectRequestMode: 2
   MeshQuality: 0
-  RequestInferredRegions: 1
+  RequestInferredRegions: 0
   ColorForBackgroundObjects: {r: 0.953, g: 0.475, b: 0.875, a: 1}
   ColorForWallObjects: {r: 0.953, g: 0.494, b: 0.475, a: 1}
   ColorForFloorObjects: {r: 0.733, g: 0.953, b: 0.475, a: 1}
@@ -1779,7 +1780,7 @@ MonoBehaviour:
   isGlobal: 0
   Dimensions: 2
   dimensionIndex: 0
-  startDimensionIndex: 1
+  startDimensionIndex: 0
   CanSelect: 1
   CanDeselect: 1
   VoiceCommand: Select
@@ -2205,7 +2206,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8839117087965361038}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4684083f6dff4a1d8a790bccc354fcf4, type: 3}
   m_Name: 

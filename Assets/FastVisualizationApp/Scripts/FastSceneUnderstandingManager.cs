@@ -40,7 +40,7 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
         [Tooltip("When enabled, the latest data from Scene Understanding data provider will be displayed periodically (controlled by the AutoRefreshIntervalInSeconds float).")]
         public bool AutoRefresh = true;
         [Tooltip("Interval to use for auto refresh, in seconds.")]
-        [Range(1f, 60f)]
+        [Range(0f, 10f)]
         public float AutoRefreshIntervalInSeconds = 10.0f;
 
         [Header("Request Settings")]
@@ -388,19 +388,29 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             {
                 // If there was previously a scene displayed in the game world, destroy it
                 // to avoid overlap with the new scene about to be displayed
-                DestroyAllGameObjectsUnderParent(SceneRoot.transform);
+                // DestroyAllGameObjectsUnderParent(SceneRoot.transform);
+                List<Transform> oldTransforms = GetChildrenUnderParent(SceneRoot.transform);
 
-                // Allow from one frame to yield the coroutine back to the main thread
-                yield return null;
+                // // Allow from one frame to yield the coroutine back to the main thread
+                // yield return null;
+
 
                 // Retreive a transformation matrix that will allow us orient the Scene Understanding Objects into
                 // their correct correspoding position in the unity world
-                System.Numerics.Matrix4x4 sceneToUnityTransformAsMatrix4x4 = GetSceneToUnityTransformAsMatrix4x4(suScene);
+                System.Numerics.Matrix4x4? sceneToUnityTransformAsMatrix4x4 = null;
+                try
+                {
+                   sceneToUnityTransformAsMatrix4x4 = GetSceneToUnityTransformAsMatrix4x4(suScene);
+                }
+                catch(Exception e)
+                {
+                    Debug.LogError($"Error when displaying scene objects {e.Message}");                    
+                }
 
                 if(sceneToUnityTransformAsMatrix4x4 != null)
                 {
                     // Using the transformation matrix generated above, port its values into the tranform of the scene root (Numerics.matrix -> GameObject.Transform)
-                    SetUnityTransformFromMatrix4x4(SceneRoot.transform, sceneToUnityTransformAsMatrix4x4, RunOnDevice);
+                    SetUnityTransformFromMatrix4x4(SceneRoot.transform, sceneToUnityTransformAsMatrix4x4.Value, RunOnDevice);
 
                     if(!RunOnDevice)
                     {
@@ -417,7 +427,18 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                     int i = 0;
                     foreach (SceneUnderstanding.SceneObject sceneObject in sceneObjects)
                     {
-                        if(DisplaySceneObject(sceneObject))
+                        bool success = false;
+                        try
+                        {
+                            success = DisplaySceneObject(sceneObject);
+                        }
+                        catch(Exception e)
+                        {
+                            Debug.LogError($"Failed to display sceneObject: {e.Message}");
+                            continue;
+                        }
+
+                        if(success)
                         {
                             if(++i % NumberOfSceneObjectsToLoadPerFrame == 0)
                             {
@@ -425,15 +446,14 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
                                 yield return null;
                             }
                         }
-                    }
                 }
-
                 // When all objects have been loaded, finish.
-                IsDisplayInProgress = false;
-                Debug.Log("SceneUnderStandingManager.DisplayData: Display Completed");
-                // Run CallBacks for Onload Finished
-                OnLoadFinished.Invoke();
+                oldTransforms.ForEach(t => Destroy(t.gameObject));
             }
+            IsDisplayInProgress = false;
+            Debug.Log("SceneUnderStandingManager.DisplayData: Display Completed");
+            // Run CallBacks for Onload Finished
+            OnLoadFinished.Invoke();
         }
 
         /// <summary>
@@ -888,6 +908,16 @@ namespace Microsoft.MixedReality.SceneUnderstanding.Samples.Unity
             {
                 Destroy(child.gameObject);
             }
+        }
+
+        private List<Transform> GetChildrenUnderParent(Transform parentTransform)
+        {
+            List<Transform> children = new List<Transform>();
+            foreach (Transform child in parentTransform)
+            {
+                children.Add(child);
+            }
+            return children;
         }
 
         /// <summary>
